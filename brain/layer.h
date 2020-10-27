@@ -15,15 +15,15 @@ struct iza_layer {
 	size_t l_input_size;
 };
 
-// void override_inputs(struc iza_layer *, double *);
+int override_inputs(struct iza_layer *, double *, size_t);
 
 // Mutate functions
 
-void link_prev_layer(struct iza_layer *, struct iza_layer *);
+int link_prev_layer(struct iza_layer *, struct iza_layer *);
 
-void create_input_layer(struct iza_layer *, size_t);
-void create_layer(struct iza_layer *, struct iza_layer *, size_t);
+int create_input_layer(struct iza_layer *, size_t);
+int create_layer(struct iza_layer *, struct iza_layer *, size_t);
 
-void delete_layer(struct iza_layer *);
+int delete_layer(struct iza_layer *);
 
 #endif /* IZANAMI_NETWORK_LAYER_H_ */

@@ -28,6 +28,7 @@ double activation_gaussian(double);
 #define ACT_SINU	8
 #define ACT_SINC	9
 #define ACT_GAUS	10
+#define ACT_DEFAULT 2
 double (*iza_activations[])(double) = {
 	activation_identity,
 	activation_binary_step,
