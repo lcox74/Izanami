@@ -16,9 +16,7 @@ Neural Network (NN) architecture. These include data pre-calculations,
 normalisation, brain exportation, API implementation etc.
 
 The NN architecture proposed for this project is heavily based on Yaping 
-Hao and Qiang Gao's paper on [Predicting the Trend of Stock Market Index 
-Using the Hybrid Neural Network Based on Multiple Time Scale Feature 
-Learning](https://www.mdpi.com/2076-3417/10/11/3961)[1]. As I have no idea 
+Hao and Qiang Gao's paper on stock market trend prediction [1]. As I have no idea 
 what I am doing, basing the architecture off an existing method is a good 
 place to start. There will be some alterations to the design, for example 
 using bi-directional LSTMs and the fact that I am trying to implement 
