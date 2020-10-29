@@ -152,10 +152,10 @@ compared to the performance of the bots that survived.
 4. The bot can either buy or sell in the day, not both.
 
 #### Modifiers
-- Buy/day Ratio (Smaller the better, this will vary)
-- Sell/day Ratio (Smaller the better, this will vary)
-- Buy/sell Ratio (Larger the better, this will vary)
-- How close the prediction was to the actual next day
+1. Buy/days Ratio
+2. Sell/days Ratio
+3. Buy/sell Ratio
+4. How close the prediction was to the actual next day
  
 > Modifiers will require tweaking as I don't actually know what is good.
 
