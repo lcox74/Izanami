@@ -1,4 +1,5 @@
 *.o
-/bin
-/training_data/*
 *.csv
+
+/bin
+

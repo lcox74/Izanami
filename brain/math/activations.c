@@ -6,7 +6,8 @@
  * 	f(x)' = 1;
  */
 double
-activation_identity(double x) {
+activation_identity(double x) 
+{
 	return x;
 }
 
@@ -15,7 +16,8 @@ activation_identity(double x) {
  * 	f(x)' = 0;
  */
 double
-activation_binary_step(double x) {
+activation_binary_step(double x) 
+{
 	return (double)(x > 0.0);
 }
 
@@ -25,7 +27,8 @@ activation_binary_step(double x) {
  * 	f(x)' = f(x) * (1 - f(x));
  */
 double
-activation_sigmoid(double x) {
+activation_sigmoid(double x) 
+{
 	return 1.0 / (1.0 + exp(-x));
 }
 
@@ -35,7 +38,8 @@ activation_sigmoid(double x) {
  * 	f(x)' = 1 - pow(f(x), 2);
  */
 double
-activation_tanh(double x) {
+activation_tanh(double x) 
+{
 	return tanh(x);
 }
 
@@ -45,7 +49,8 @@ activation_tanh(double x) {
  * 	f(x)' = (x > 0);
  */
 double
-activation_relu(double x) {
+activation_relu(double x) 
+{
 	return (x > 0.0) ? x : 0.0;
 }
 
@@ -55,7 +60,8 @@ activation_relu(double x) {
  * 	f(x)' = (x > 0) ? 1 : 0.01; 
  */
 double
-activation_leaky_relu(double x) {
+activation_leaky_relu(double x) 
+{
 	return (x > 0.0) ? x : x * 0.01;
 }
 
@@ -64,7 +70,8 @@ activation_leaky_relu(double x) {
  * 	f(x)' = 1 / (pow(x, 2) + 1);
  */
 double
-activation_arc_tan(double x) {
+activation_arc_tan(double x) 
+{
 	return atan(x);
 }
 
@@ -73,7 +80,8 @@ activation_arc_tan(double x) {
  * 	f(x)' = 1 + ((x) / (2 * sqrt(pow(x, 2) + 1)));
  */
 double
-activation_bent_identity(double x) {
+activation_bent_identity(double x) 
+{
 	return x + ((sqrt(pow(x, 2.0) + 1.0) - 1.0) / 2.0);
 }
 
@@ -82,7 +90,8 @@ activation_bent_identity(double x) {
  * 	f(x)' = cos(x);
  */
 double
-activation_sinusoid(double x) {
+activation_sinusoid(double x) 
+{
 	return sin(x);
 }
 
@@ -91,7 +100,8 @@ activation_sinusoid(double x) {
  * 	f(x)' = (x == 0) ? 0 : (cos(x)/x - sin(x)/pow(x,2));
  */
 double
-activation_sinc(double x) {
+activation_sinc(double x) 
+{
 	return (x == 0.0) ? 1.0 : (sin(x) / x);
 }
 
@@ -100,7 +110,8 @@ activation_sinc(double x) {
  * 	f(x)' = -2 * x * exp(-pow(x,2));
  */
 double
-activation_gaussian(double x) {
+activation_gaussian(double x) 
+{
 	return exp(-(pow(x, 2)));
 }
 

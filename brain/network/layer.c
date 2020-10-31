@@ -8,12 +8,13 @@
  * Returns 0 on success.
  */
 int
-override_inputs(struct iza_layer *layer, double *inputs, size_t size) {
-	if (size != layer->l_layer_size) return;
+override_inputs(struct iza_layer *layer, double *inputs, size_t size)
+{
+	if (size != layer->l_layer_size) return 1;
 
 	int error = 0;
 	for (size_t i = 0; i < size; i++) 
-		if ((error = override_neuron(&layer[i], inputs[i])) break;
+		if ((error = override_neuron(&layer->l_neurons[i], inputs[i]))) break;
 
 	return error;
 }
@@ -22,7 +23,8 @@ override_inputs(struct iza_layer *layer, double *inputs, size_t size) {
  * Linking a new previous layer resets the weights. Returns 0 on success.
  */
 int
-link_prev_layer(struct iza_layer *layer, struct iza_layer *prev) {
+link_prev_layer(struct iza_layer *layer, struct iza_layer *prev)
+{
 	/* Setting up input layer */
 	layer->l_prev = prev;
 	layer->l_input_size = prev->l_layer_size;
@@ -40,7 +42,8 @@ link_prev_layer(struct iza_layer *layer, struct iza_layer *prev) {
  * on success.
  */
 int
-create_input_layer(struct iza_layer *layer, size_t size) {
+create_input_layer(struct iza_layer *layer, size_t size) 
+{
 	int error = 0;
 	layer = (struct iza_layer *) calloc(1, sizeof(struct iza_layer));
 
@@ -56,7 +59,8 @@ create_input_layer(struct iza_layer *layer, size_t size) {
  * to the previous layer in the network. Returns 0 on success.
  */
 int
-create_layer(struct iza_layer *layer, struct iza_layer *prev, size_t size) {
+create_layer(struct iza_layer *layer, struct iza_layer *prev, size_t size) 
+{
 	int error = 0;
 	layer = (struct iza_layer *) calloc(1, sizeof(struct iza_layer));
 
@@ -79,7 +83,8 @@ create_layer(struct iza_layer *layer, struct iza_layer *prev, size_t size) {
  * Cleans the layer as well as freeing neurons, weights. Returns 0 on success.
  */
 int
-delete_layer(struct iza_layer *layer) {
+delete_layer(struct iza_layer *layer) 
+{
 	int error = 0;
 	error = delete_neuron(layer->l_neurons);
 	free(layer->l_weights);

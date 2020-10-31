@@ -3,8 +3,6 @@
 
 #include <stddef.h>
 
-#include "activations.h"
-
 #define NEU_EMPTY   		 0
 #define NEU_CREATED 		(1 << 0)
 #define NEU_ACTIVATION_SET 	(1 << 1)
