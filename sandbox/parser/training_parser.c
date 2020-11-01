@@ -19,63 +19,12 @@ data_entries_in_csv(const char* file)
     return --line_num;
 }
 
-int assign_training_data_to_entry(int index, char *val, 
-    struct training_data_entity *entry)
-{
-    switch(index) {
-        case 0:
-            entry->t_date = val;
-            printf("%s | ", entry->t_date);
-            break;
-        case 1:
-            entry->t_open = strtof(val, NULL);
-            printf("%f | ", entry->t_open);
-            break;
-        case 2:
-            entry->t_high = strtof(val, NULL);
-            printf("%f | ", entry->t_high);
-            break;
-        case 3:
-            entry->t_low = strtof(val, NULL);
-            printf("%f | ", entry->t_low);
-            break;
-        case 4:
-            entry->t_close = strtof(val, NULL);
-            printf("%f | ", entry->t_close);
-            break;
-        case 5:
-            entry->t_adj_close = strtof(val, NULL);
-            printf("%f | ", entry->t_adj_close);
-            break;
-        case 6:
-            entry->t_volume = strtol(val, NULL, 10);
-            printf("%d \n", entry->t_volume);
-            break;
-    }
-    return 0;
-}
-
 int
-split_training_csv(char* line, struct training_data_entity *entry)
-{
-    char *split = strtok(line, ",");
-    int pos = 0;
-    while(split) {
-        assign_training_data_to_entry(pos++, split, entry);
-        split = strtok(NULL, ",");
-        if (split == "null") {
-            entry->t_invalid = 1;
-            return 1;
-        }
-    }
-
-    return 0;
-}
-
-int
-parse_training_data(const char *file, struct training_data_entity *data)
+parse_training_data(const char *file, struct training_data_entity *data, size_t *len)
 {
     size_t data_size = data_entries_in_csv(file);
+    *len = data_size;
+
     data = (struct training_data_entity *) calloc(data_size, 
 	sizeof(struct training_data_entity));
 
@@ -83,11 +32,23 @@ parse_training_data(const char *file, struct training_data_entity *data)
     if (!fp) return 1;
 
     char* line = NULL;
-    size_t len, num = 0;
-    while (getline(&line, &len, fp) >= 0) {
+    size_t line_len, num = 0;
+    while (getline(&line, &line_len, fp) >= 0) {
         if (!(num++)) continue;
 
-        split_training_csv(line, &data[num - 2]);
+        struct training_data_entity *current = &data[num - 2];
+
+        if (line[11] == 'n') {
+            current->t_invalid = 1;
+            continue;
+        }
+
+        sscanf(line, "%hu-%hhu-%hhu,%lf,%lf,%lf,%lf,%lf,%d\n", 
+            &current->t_date.data.year, 
+            &current->t_date.data.month, 
+            &current->t_date.data.day, 
+            &current->t_open, &current->t_high, &current->t_low,
+            &current->t_adj_close, &current->t_close, &current->t_volume);
     }
 
     fclose(fp);

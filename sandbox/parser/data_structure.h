@@ -13,7 +13,7 @@ struct date_entity {
 
 struct training_data_entity {
     unsigned char t_invalid;
-    char *t_date;
+    struct date_entity t_date;
     double t_open, t_high, t_low, t_close, t_adj_close;
     signed int t_volume;
 };
