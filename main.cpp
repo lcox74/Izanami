@@ -1,34 +1,31 @@
-#include "src/trading_client.hpp"
+#include "src/Izanami.hpp"
 
-auto client = trading_client(100);
-auto data = share_data("./training_data/AMP.AX.csv");
-const int num_shares = 10;
+class myStrategy : public Izanami_Client {
+public:
+    myStrategy(float initial, u8 shares) : Izanami_Client(initial, shares) {}
 
-void trading_strategy(OHLCV_d day_data, int index) {
-    double sevendlow = LLV(data, index - 1, 7);
-    double sevendhigh = HHV(data, index - 1, 7);
-    double sma200 = SMA(data, index, 200);
+    bool buy_trigger() override {
+        bool rule1 = ref(CLOSE) <= LLV(7, -1);
+        bool rule2 = ref(CLOSE) > SMA(CLOSE, 200);
 
-    /* Entry Rules */
-    if (day_data.Close <= sevendlow && day_data.Close > sma200 && !client.currently_bought()) { 
-        client.buy_shares(day_data.date, day_data.Close, num_shares);
-        client.set_stop_loss_size(2 * ATR(data, index, 20));
+        // Set Stop Loss (Only applies if actually buys)
+        set_stop_loss(ref(CLOSE) - (2 * ATR(20)));
+
+        return rule1 && rule2;
     }
-
-    /* Exit Rules */
-    if (day_data.Close >= sevendhigh || day_data.Close < client.get_stop_loss()) {
-        client.sell_shares(day_data.date, day_data.Close);
+    bool sell_trigger() override {
+       bool rule1 = ref(CLOSE) >= HHV(7, -1);
+        
+        return rule1;
     }
-}
+};
 
 int main(int argc, char *argv[]) {
-    for (int i = 0; i < data.get_data().size(); ++i) {
-        trading_strategy(data.get_data()[i], i);
-    }
+    auto strat = myStrategy(100.0f, 10);
 
-    printf("===========================  FINAL  ===========================\n");
-    printf("Money Pool $%.2f\n", client.money_pool);
-    printf("Number of Trades %d\n", client.get_logs().size());
+    strat.load_history("./training_data/GOOG.csv");
+    strat.backtest();
+    strat.backtest_report();
 
     return 0;
 }

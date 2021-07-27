@@ -1,64 +1,93 @@
-# Izanami - Trading Bot
-The Izanami project is my first attempt on a unsupervised ML trading bot. The
-project. I will be using an algorithm/technique called 
-[NEAT](http://nn.cs.utexas.edu/downloads/papers/stanley.ec02.pdf) (Neural
-Evolution of Augmenting Topologies). I plan to use python as a testing platform 
-to quickly mock up what I want to do then will re-write the project in C or C++ 
-for extra performance. This project was inspired by my boss as a challenge to 
-beat his current trading algorithm that he is currently using.
+# Izanami - Algo Trading
 
-## The Plan
+Project Izanami is planned to be an Algo Trading Strategy tester and platform.
+Designed to be a single header file that can be included in the project and have
+as simple syntax for designing strategies and algorithms.
 
-To start this project **NEAT** requires a couple things planned our before you 
-can start using it. These things are the following:
-- Inputs
-- Outputs
-- Fitness Function
-- Training Data
-- Rules
-- Hyper Parameters
+## Strategy Syntax
 
-I've had changed the spec on this project a number of times as I couldn't figure
-out how exactly I want the bot to work. But now after fine tuning the base 
-design I have a solid idea of the requirements.
+The following is an example of how to use Izanami to develop your trading 
+strategy. The `Izanami_Client` requires an initial captial (starting money pool)
+and the number of shares to buy & sell each trade. Other requirements are the
+`buy_trigger` and `sell_trigger` which is how your algorithm knows when to 
+trade. If you return `true` then it schedules to buy on the *Open* price for the
+next iteration (eg. next day). You can set up your own variables in your 
+strategy class allowing you to build state machine like strategies.
 
-- **Inputs**: The bot will get the `amount of money` it has in its pool. The 
-current day `OHLCV percent change` and the simple moving average of 3 time 
-seperate time periods `SMA(5), SMA(20), SMA(50)`. Additionally it also recieves
-the number of active stocks it has.
-- **Outputs**: The bot will have `2` binary outputs. One being a 
-`trigger to buy` and the other being a `trigger to sell`.
-- **Fitness Function**: The fitness function will be the `most money` made by 
-the bot with the `less amount of loss`.
-- **Training Data**: This is fetched directly from 
-[Yahoo Finance](https://finance.yahoo.com) grabbing the full daily history of a
-variety tickers.
-- **Rules**: For the bot to work, it will be governed by a series of rules.
-  - The bot can only `buy` **or** `sell` in a single day
-  - If both `buy` and `sell` outputs are above `50%` nothing will happen that 
-  day
-  - The bot dies if:
-    - Spends more than it has in it's pool
-    - Sells what it doesn't have
-    - Has over a `90%` loss
+```C++
+#include "src/Izanami.hpp"
 
-## Pseudo Trading Environment
-The pseudo trading environment is important to develop for the unsupervised
-learnig to work effectively. This will need to emulate a proper trading
-space where the prices will alter based on historic trading data. The bot
-will also need to be able to buy and sell a stock and the environment needs
-to keep track of the bot's overall cash including percentage of profit, loss,
-number of trades, behaviour issues etc. This along with some rules will serve
-as the bot's fitness function.
+class myStrategy : public Izanami_Client {
+public:
+    // Required: Constructor
+    myStrategy(float initial, u8 shares) : Izanami_Client(initial, shares) {}
 
-### Simulation Data
-By using [Yahoo Finance](https://finance.yahoo.com) I can make a simple web
-scraper to bulk fetch alot of data. I've actually done this already. I have
-roughly 1.8 thousand csv files in OHLCV format with each file being the
-complete history of single ticker on the ASX. 
+    // Required: Buy Trigger
+    bool buy_trigger() override {
+        bool rule1 = ref(CLOSE) <= LLV(7, -1);
+        bool rule2 = ref(CLOSE) > SMA(CLOSE, 200);
 
-### Simulation Process
-The bot will have a pool of money which it can spend on stocks, the
-environment will keep track of how many stocks the bot buys and sells. It
-won't allow the bot to spend more than its avaliable money or sell anything
-the bot doesn't own. If the bot breaks any of these rules, it dies.
+        // Set Stop Loss (Only applies if actually buys)
+        set_stop_loss(ref(CLOSE) - (2 * ATR(20)));
+
+        return rule1 && rule2;
+    }
+
+    // Required: Sell Trigger
+    bool sell_trigger() override {
+       bool rule1 = ref(CLOSE) >= HHV(7, -1);
+        
+        return rule1;
+    }
+};
+
+int main(int argc, char *argv[]) {
+    auto strat = myStrategy(100.0f, 10);
+
+    strat.load_history("./training_data/GOOG.csv");
+    strat.backtest();
+
+    return 0;
+}
+```
+
+To get the current day's price, you need to use `ref` for reference. This 
+function requires a type being; `OPEN, HIGH, LOW, ADJ_CLOSE, CLOSE, VOLUME` and
+an optional `offset` value where negative numbers allows you to get the 
+reference point from previous days. By defauly it will get the current day with 
+the offset of `0`.
+
+### Indicators
+
+Indicators will use their standard abbreviation to call. Some will require a 
+desired `type`, `period` and `offset`. The following indicators have been made
+and currently work in the system:
+
+- `SMA(type, period, offset = 0)` eg. `SMA(CLOSE, 200)`
+- `EMA(type, period, offset = 0)` eg. `EMA(CLOSE, 200)`
+- `MACD(type, offset = 0)` eg. `MACD(CLOSE)`
+- `RSI(type, period = 14, offset = 0)` eg. `RSI(CLOSE)`
+- `ATR(period, offset = 0` eg. `ATR(14)`
+- `HHV(period, offset = 0` eg. `HHV(14)`
+- `LLV(period, offset = 0` eg. `LLV(14)`
+
+### Back Testing Report
+> TODO
+
+**Done:**
+- Initial Capital
+- Ending Capital
+- Net Profit
+- Total Trades
+
+**Requirements:**
+- Net Profit %
+- Exposure %
+- Net Risk Adjusted Return %
+- Annual Return %
+- Risk Adjusted Return %
+- Total Transaction Costs (Commision on trade)
+- Avg. Profit/Loss
+- Avg. Profit/Loss %
+- Avg. Held Time
+- Avg. Profit
